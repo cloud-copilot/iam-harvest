@@ -1,0 +1,188 @@
+name: Update IAM Packages
+run-name: "Updating IAM Data Packages"
+on:
+  schedule:
+    - cron: "37 4 * * *"
+  workflow_dispatch:
+
+jobs:
+  Update-IAM-Data-Packages:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout Updater Repo
+        uses: actions/checkout@v4
+        with:
+          path: iam-collect
+      - name: Checkout IAM Data Node Repo
+        uses: actions/checkout@v4
+        with:
+          path: iam-data
+          repository: cloud-copilot/iam-data
+          token: ${{ secrets.REPO_PUSH_TOKEN }}
+      - name: Checkout IAM Data Go Repo
+        uses: actions/checkout@v4
+        with:
+          path: iam-data-go
+          repository: cloud-copilot/iam-data-go
+          token: ${{ secrets.REPO_PUSH_TOKEN }}
+      - name: Checkout IAM Data Python Repo
+        uses: actions/checkout@v4
+        with:
+          path: iam-data-python
+          repository: cloud-copilot/iam-data-python
+          token: ${{ secrets.REPO_PUSH_TOKEN }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install Dependencies
+        run: |
+          cd iam-collect
+          npm install
+
+      - name: Generate IAM Data
+        run: |
+          cd iam-collect
+          npm run download
+          npm run parse
+          npm run sortServiceDefinitions
+          cd ..
+          pwd
+          # Put data in to node package
+          rm -rf iam-data/data/*
+          cp -r iam-collect/files/serviceInfo/* iam-data/data/
+          # Put data into go module
+          cp iam-data-go/iamdata/data/metadata.json .
+          rm -rf iam-data-go/iamdata/data/*
+          mv metadata.json iam-data-go/iamdata/data/metadata.json
+          cp -r iam-collect/files/serviceInfo/* iam-data-go/iamdata/data/
+          # Put data into python module
+          cp iam-data-python/iamdata/data/metadata.json .
+          rm -rf iam-data-python/iamdata/data/*
+          mv metadata.json iam-data-python/iamdata/data/metadata.json
+          cp -r iam-collect/files/serviceInfo/* iam-data-python/iamdata/data/
+
+      - name: Publish NPM If Different
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          cd iam-data
+          if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+            echo "changes found"
+          else
+            echo "no changes, exiting"
+            exit 0
+          fi
+
+          git config --global user.email "ci@cloudcopilot.io"
+          git config --global user.name "Cloud Copilot Automation"
+
+          current_date=$(date +%Y%m%d)
+          minor_version=(`cat package.json | jq -r .version | cut -d "." -f 1,2`)
+          new_version="$minor_version.$current_date"1
+          updated_at=(`node -e "console.log(new Date().toISOString())"`)
+          cat package.json | jq --arg new_version $new_version '.version = $new_version' > package.new.json
+          mv package.new.json package.json
+          cat package.json | jq --arg updated_at $updated_at '.updatedAt = $updated_at' > package.new.json
+          mv package.new.json package.json
+          cat package.json
+          npm install
+          npm run build
+          git status
+          git add .
+          git commit -m "Updates $current_date"
+          git log
+          # git push
+
+          # echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+          # npm publish --access public
+
+      - name: Publish Go If Different
+        run: |
+          cd iam-data-go
+          if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+            echo "changes found"
+          else
+            echo "no changes, exiting"
+            exit 0
+          fi
+
+          git config --global user.email "ci@cloudcopilot.io"
+          git config --global user.name "Cloud Copilot Automation"
+
+          current_date=$(date +%Y%m%d)
+          cd iamdata/data
+          echo "metadata.json"
+          cat metadata.json
+          minor_version=(`cat metadata.json | jq -r .version | cut -d "." -f 1,2`)
+          new_version="$minor_version.$current_date"1
+          updated_at=(`node -e "console.log(new Date().toISOString())"`)
+          cat metadata.json | jq --arg new_version $new_version '.version = $new_version' > metadata.new.json
+          mv metadata.new.json metadata.json
+          cat metadata.json | jq --arg updated_at $updated_at '.updatedAt = $updated_at' > metadata.new.json
+          mv metadata.new.json metadata.json
+          echo ""
+          echo "metadata.json"
+          cat metadata.json
+          cd ../..
+          git status
+          git add .
+          git commit -m "Updates $current_date"
+          git log
+          tag=v"$new_version"
+          git tag $tag
+          # git push origin tag $tag
+          # git push
+
+      - name: Publish Python If Different
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_KEY }}
+        run: |
+          cd iam-data-python
+          if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+            echo "changes found"
+          else
+            echo "no changes, exiting"
+            # exit 0
+          fi
+
+          python3 -m pip install tomlkit build twine
+
+          git config --global user.email "ci@cloudcopilot.io"
+          git config --global user.name "Cloud Copilot Automation"
+
+          current_date=$(date +%Y%m%d)
+          cd iamdata/data
+          echo "metadata.json"
+          cat metadata.json
+          minor_version=(`cat metadata.json | jq -r .version | cut -d "." -f 1,2`)
+          new_version="$minor_version.$current_date"1
+          updated_at=(`node -e "console.log(new Date().toISOString())"`)
+          cat metadata.json | jq --arg new_version $new_version '.version = $new_version' > metadata.new.json
+          mv metadata.new.json metadata.json
+          cat metadata.json | jq --arg updated_at $updated_at '.updatedAt = $updated_at' > metadata.new.json
+          mv metadata.new.json metadata.json
+          echo "metadata.json"
+          cat metadata.json
+          cd ../..
+          ## Update TOML
+          python update_version.py $new_version
+          cat pyproject.toml
+          ## Publish Package
+          python3 -m build
+          # python3 -m twine upload --repository pypi dist/*
+          git status
+          git add .
+          git commit -m "Updates $current_date"
+          git log
+          tag=v"$new_version"
+          git tag $tag
+          # git push origin tag $tag
+          # git push
