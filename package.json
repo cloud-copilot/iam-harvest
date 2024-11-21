@@ -1,0 +1,35 @@
+{
+  "name": "@cloud-copilot/iam-collect",
+  "version": "0.1.1",
+  "description": "Collect data about IAM and publish to packages",
+  "main": "dist/index.js",
+  "private": true,
+  "scripts": {
+    "build": "npx tsc",
+    "clean": "rm -rf dist",
+    "download": "tsx src/download.ts",
+    "parse": "tsx src/parse.ts",
+    "sortServiceDefinitions": "tsx src/sortServiceDefinitions.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cloud-copilot/iam-collect.git"
+  },
+  "keywords": [
+    "AWS",
+    "IAM"
+  ],
+  "author": "David Kerber <dave@cloudcopilot.io>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cloud-copilot/iam-collect/issues"
+  },
+  "homepage": "https://github.com/cloud-copilot/iam-collect#readme",
+  "dependencies": {
+    "@types/node": "^22.9.1",
+    "cheerio": "^1.0.0",
+    "domhandler": "^5.0.3",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}
