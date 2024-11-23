@@ -98,10 +98,10 @@ jobs:
           git add .
           git commit -m "Updates $current_date"
           git log
-          # git push
+          git push
 
-          # echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
-          # npm publish --access public
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+          npm publish --access public
 
       - name: Publish Go If Different
         run: |
@@ -137,8 +137,8 @@ jobs:
           git log
           tag=v"$new_version"
           git tag $tag
-          # git push origin tag $tag
-          # git push
+          git push origin tag $tag
+          git push
 
       - name: Publish Python If Different
         env:
@@ -184,5 +184,5 @@ jobs:
           git log
           tag=v"$new_version"
           git tag $tag
-          # git push origin tag $tag
-          # git push
+          git push origin tag $tag
+          git push
