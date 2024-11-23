@@ -177,7 +177,7 @@ jobs:
           cat pyproject.toml
           ## Publish Package
           python3 -m build
-          # python3 -m twine upload --repository pypi dist/*
+          python3 -m twine upload --repository pypi dist/*
           git status
           git add .
           git commit -m "Updates $current_date"
