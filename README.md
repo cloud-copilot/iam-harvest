@@ -2,10 +2,9 @@
 Collects AWS IAM Metadata and publishes to different libraries to assist with automation.
 
 ## Status
-Currently this is not publishing apps, but will take over soon.
+[![Build Status](https://github.com/cloud-copilot/iam-collect/actions/workflows/update-packages.yml/badge.svg)](https://github.com/cloud-copilot/iam-collect/actions/workflows/update-packages.yml)
 
 ### Packages
-
 This publishes to three different packages nightly **if there are changes to the data**:
 
 |Runtime|Github|Package|
