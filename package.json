@@ -9,7 +9,8 @@
     "clean": "rm -rf dist",
     "download": "tsx src/download.ts",
     "parse": "tsx src/parse.ts",
-    "sortServiceDefinitions": "tsx src/sortServiceDefinitions.ts"
+    "sortServiceDefinitions": "tsx src/sortServiceDefinitions.ts",
+    "sanityCheck": "tsx src/sanityCheck.ts"
   },
   "repository": {
     "type": "git",

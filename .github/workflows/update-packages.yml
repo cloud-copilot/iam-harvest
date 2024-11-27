@@ -51,6 +51,7 @@ jobs:
           npm run download
           npm run parse
           npm run sortServiceDefinitions
+          npm run sanityCheck
           cd ..
           pwd
           # Put data in to node package
