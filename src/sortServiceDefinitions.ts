@@ -1,17 +1,14 @@
 import { readdirSync } from 'fs';
 import { mkdir, writeFile } from 'fs/promises';
 import { join } from 'path';
-import { filesLocation, jsonDocsLocaiton } from './util/consts.js';
+import { actionsLocation, conditionKeysLocation, jsonDocsLocaiton, resourceTypesLocation, serviceInfoLocation } from './util/consts.js';
 
 /**
  * Takes the parsed JSON files and sorts them into a structure to publish.
  */
 
 const files = readdirSync(jsonDocsLocaiton)
-const serviceInfoLocation = join(filesLocation, 'serviceInfo')
-const actionsLocation = join(serviceInfoLocation, 'actions')
-const resourceTypesLocation = join(serviceInfoLocation, 'resourceTypes')
-const conditionKeysLocation = join(serviceInfoLocation, 'conditionKeys')
+
 
 type Actions = Record<string, any>
 type ResourceTypes = Record<string, any>
