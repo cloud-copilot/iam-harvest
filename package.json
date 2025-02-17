@@ -1,7 +1,7 @@
 {
-  "name": "@cloud-copilot/iam-collect",
+  "name": "@cloud-copilot/iam-harvest",
   "version": "0.1.1",
-  "description": "Collect data about IAM and publish to packages",
+  "description": "Harvest data about IAM and publish to packages",
   "main": "dist/index.js",
   "private": true,
   "scripts": {
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cloud-copilot/iam-collect.git"
+    "url": "git+https://github.com/cloud-copilot/iam-harvest.git"
   },
   "keywords": [
     "AWS",
@@ -23,9 +23,9 @@
   "author": "David Kerber <dave@cloudcopilot.io>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/cloud-copilot/iam-collect/issues"
+    "url": "https://github.com/cloud-copilot/iam-harvest/issues"
   },
-  "homepage": "https://github.com/cloud-copilot/iam-collect#readme",
+  "homepage": "https://github.com/cloud-copilot/iam-harvest#readme",
   "dependencies": {
     "@types/node": "^22.9.1",
     "cheerio": "^1.0.0",

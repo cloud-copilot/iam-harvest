@@ -1,8 +1,8 @@
-# IAM Collect
-Collects AWS IAM Metadata and publishes to different libraries to assist with automation.
+# IAM Harvest
+Harvests AWS IAM Metadata and publishes to different libraries to assist with automation.
 
 ## Status
-[![Build Status](https://github.com/cloud-copilot/iam-collect/actions/workflows/update-packages.yml/badge.svg)](https://github.com/cloud-copilot/iam-collect/actions/workflows/update-packages.yml)
+[![Build Status](https://github.com/cloud-copilot/iam-harvest/actions/workflows/update-packages.yml/badge.svg)](https://github.com/cloud-copilot/iam-harvest/actions/workflows/update-packages.yml)
 
 ### Packages
 This publishes to three different packages nightly **if there are changes to the data**:

@@ -12,7 +12,7 @@ jobs:
       - name: Checkout Updater Repo
         uses: actions/checkout@v4
         with:
-          path: iam-collect
+          path: iam-harvest
       - name: Checkout IAM Data Node Repo
         uses: actions/checkout@v4
         with:
@@ -42,12 +42,12 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          cd iam-collect
+          cd iam-harvest
           npm install
 
       - name: Generate IAM Data
         run: |
-          cd iam-collect
+          cd iam-harvest
           npm run download
           npm run parse
           npm run sortServiceDefinitions
@@ -56,17 +56,17 @@ jobs:
           pwd
           # Put data in to node package
           rm -rf iam-data/data/*
-          cp -r iam-collect/files/serviceInfo/* iam-data/data/
+          cp -r iam-harvest/files/serviceInfo/* iam-data/data/
           # Put data into go module
           cp iam-data-go/iamdata/data/metadata.json .
           rm -rf iam-data-go/iamdata/data/*
           mv metadata.json iam-data-go/iamdata/data/metadata.json
-          cp -r iam-collect/files/serviceInfo/* iam-data-go/iamdata/data/
+          cp -r iam-harvest/files/serviceInfo/* iam-data-go/iamdata/data/
           # Put data into python module
           cp iam-data-python/iamdata/data/metadata.json .
           rm -rf iam-data-python/iamdata/data/*
           mv metadata.json iam-data-python/iamdata/data/metadata.json
-          cp -r iam-collect/files/serviceInfo/* iam-data-python/iamdata/data/
+          cp -r iam-harvest/files/serviceInfo/* iam-data-python/iamdata/data/
 
       - name: Publish NPM If Different
         env:
