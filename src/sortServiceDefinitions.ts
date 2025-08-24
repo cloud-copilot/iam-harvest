@@ -30,12 +30,12 @@ type InfoByService = Record<
 >
 
 type UnassociatedConditionKeys = Record<string, string[]>
-type ConditionPrefixes = { s: Record<string, string>; ns: Record<string, string> }
+type ConditionPatterns = Record<string, Record<string, string>>
 
-function getInformationByService(): [InfoByService, UnassociatedConditionKeys, ConditionPrefixes] {
+function getInformationByService(): [InfoByService, UnassociatedConditionKeys, ConditionPatterns] {
   const infoByService: InfoByService = {}
   const unassociatedConditionKeys: UnassociatedConditionKeys = {}
-  const allPrefixes: ConditionPrefixes = { s: {}, ns: {} }
+  const conditionPatterns: ConditionPatterns = {}
 
   for (const file of files) {
     const fileContents = require(join(jsonDocsLocation, file))
@@ -82,25 +82,19 @@ function getInformationByService(): [InfoByService, UnassociatedConditionKeys, C
       }
 
       if (conditionKey.key.includes('$') && !conditionKey.key.startsWith('aws:')) {
-        // console.log(serviceKey, key)
         const parts = conditionKey.key.split('$')
-        // console.log(parts[0])
         if (parts.length > 2) {
           throw new Error(`Unexpected format for key: ${conditionKey.key}`)
         }
-        const prefix = parts[0].toLowerCase()
-        const prefixMap = prefix.endsWith('/') ? allPrefixes.s : allPrefixes.ns
-
-        if (prefixMap[prefix] && prefixMap[prefix] !== conditionKey.key) {
-          throw new Error(
-            `Conflict for prefix ${prefix}: ${prefixMap[prefix]} !== ${conditionKey.key}`
-          )
+        if (!conditionPatterns[conditionPrefix]) {
+          conditionPatterns[conditionPrefix] = {}
         }
-        prefixMap[prefix] = conditionKey.key
+        const pattern = conditionKey.key.replace(/\$\{.*\}/, '.+?')
+        conditionPatterns[conditionPrefix][pattern] = conditionKey.key
       }
     }
   }
-  return [infoByService, unassociatedConditionKeys, allPrefixes]
+  return [infoByService, unassociatedConditionKeys, conditionPatterns]
 }
 
 async function run() {
@@ -110,7 +104,7 @@ async function run() {
   await mkdir(resourceTypesLocation, { recursive: true })
   await mkdir(conditionKeysLocation, { recursive: true })
 
-  const [infoByService, unassociatedConditionKeys, allPrefixes] = getInformationByService()
+  const [infoByService, unassociatedConditionKeys, conditionPatterns] = getInformationByService()
   const serviceKeys = Object.keys(infoByService).sort()
   const serviceNames = serviceKeys.reduce(
     (acc, key) => {
@@ -146,8 +140,8 @@ async function run() {
   )
 
   await writeFile(
-    join(serviceInfoLocation, 'conditionPrefixes.json'),
-    JSON.stringify(allPrefixes, null, 2)
+    join(serviceInfoLocation, 'conditionPatterns.json'),
+    JSON.stringify(conditionPatterns, null, 2)
   )
 }
 
