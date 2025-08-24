@@ -1,4 +1,4 @@
-import { writeFile } from 'fs/promises';
+import { writeFile } from 'fs/promises'
 
 /**
  * Download a url to a file
@@ -6,8 +6,8 @@ import { writeFile } from 'fs/promises';
  * @param toLocation The location to download to
  */
 export async function downloadUrlToFile(fromUrl: string, toLocation: string) {
-  const response = await fetch(fromUrl);
-  const rootPage = await response.text();
+  const response = await fetch(fromUrl)
+  const rootPage = await response.text()
   await writeFile(toLocation, rootPage)
 }
 
@@ -22,7 +22,7 @@ export async function downloadUrlToFile(fromUrl: string, toLocation: string) {
  * @returns Returns a full url to download
  */
 export function makeFullUrl(urlRoot: string, relativeUrl: string): string {
-  if(relativeUrl.startsWith('./')) {
+  if (relativeUrl.startsWith('./')) {
     return urlRoot + relativeUrl.substring(2)
   }
   return urlRoot + relativeUrl

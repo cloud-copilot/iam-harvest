@@ -8,6 +8,8 @@
     "build": "npx tsc",
     "clean": "rm -rf dist",
     "download": "tsx src/download.ts",
+    "format": "npx prettier --write src/",
+    "format-check": "npx prettier --check src/",
     "parse": "tsx src/parse.ts",
     "sortServiceDefinitions": "tsx src/sortServiceDefinitions.ts",
     "sanityCheck": "tsx src/sanityCheck.ts"
@@ -27,10 +29,14 @@
   },
   "homepage": "https://github.com/cloud-copilot/iam-harvest#readme",
   "dependencies": {
-    "@types/node": "^22.9.1",
     "cheerio": "^1.0.0",
     "domhandler": "^5.0.3",
-    "tsx": "^4.19.2",
+    "tsx": "^4.19.2"
+  },
+  "devDependencies": {
+    "@cloud-copilot/prettier-config": "^0.1.1",
+    "@types/node": "^22.9.1",
     "typescript": "^5.6.3"
-  }
+  },
+  "prettier": "@cloud-copilot/prettier-config"
 }

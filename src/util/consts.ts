@@ -10,7 +10,7 @@ export const operatorDetailsLocation = join(operatorsLocation, 'details')
 
 export const htmlDownloadLocation = join(filesLocation, 'html')
 
-export const jsonDocsLocaiton = join(filesLocation, 'json')
+export const jsonDocsLocation = join(filesLocation, 'json')
 
 export const serviceInfoLocation = join(filesLocation, 'serviceInfo')
 export const actionsLocation = join(serviceInfoLocation, 'actions')

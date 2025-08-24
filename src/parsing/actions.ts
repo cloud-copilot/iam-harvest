@@ -8,17 +8,17 @@ interface ResourceTypeReference {
   required: boolean
 }
 
-//[Action, Decription, Access Level] --one or many--> Resource Types(required), Condition Keys, Dependent Actions
+//[Action, Description, Access Level] --one or many--> Resource Types(required), Condition Keys, Dependent Actions
 // Description may have Scenarios in it.
 
 export function parseActions(doc: CheerioAPI): Action[] {
   const table = doc('th:contains("Actions")').parents('table')
   const actionRows = findActionRows(doc, table)
 
-  return actionRows.map(row => getActionFromRow(doc, row))
+  return actionRows.map((row) => getActionFromRow(doc, row))
 }
 
-function parseName(nameText: string): {name: string, isPermissionOnly?: boolean} {
+function parseName(nameText: string): { name: string; isPermissionOnly?: boolean } {
   nameText = nameText.trim()
   const isPermissionOnly = nameText.endsWith('[permission only]') ? true : undefined
   return {
@@ -50,33 +50,45 @@ function getActionFromRow(doc: CheerioAPI, row: Cheerio<Element>): Action {
 
 function parseSingleRowAction(doc: CheerioAPI, row: Cheerio<Element>): Action {
   const columns = row.find('td')
-  const {name, isPermissionOnly} = parseName(doc(columns.get(0)).text())
+  const { name, isPermissionOnly } = parseName(doc(columns.get(0)).text())
   const description = doc(columns.get(1)).text().trim()
   const accessLevel = doc(columns.get(2)).text().trim()
   const resourceType = parseResourceTypeRef(doc(columns.get(3)).text().trim())
-  const conditionKeys = doc(columns.get(4)).find('a').map((i, el) => doc(el).text().trim()).get()
-  const dependentActions = doc(columns.get(5)).find('p').map((i, el) => doc(el).text().trim()).get()
+  const conditionKeys = doc(columns.get(4))
+    .find('a')
+    .map((i, el) => doc(el).text().trim())
+    .get()
+  const dependentActions = doc(columns.get(5))
+    .find('p')
+    .map((i, el) => doc(el).text().trim())
+    .get()
 
   return {
     name,
     isPermissionOnly,
     description,
     accessLevel,
-    resourceTypes: resourceType ? [{...resourceType, conditionKeys: [], dependentActions: []}] : [],
+    resourceTypes: resourceType
+      ? [{ ...resourceType, conditionKeys: [], dependentActions: [] }]
+      : [],
     conditionKeys,
     dependentActions
   }
 }
 
-function parseSimpleMultiRowAction(doc: CheerioAPI, row: Cheerio<Element>, numberOfRows: number): Action {
+function parseSimpleMultiRowAction(
+  doc: CheerioAPI,
+  row: Cheerio<Element>,
+  numberOfRows: number
+): Action {
   const columns = row.find('td')
-  const {name, isPermissionOnly} = parseName(doc(columns.get(0)).text())
+  const { name, isPermissionOnly } = parseName(doc(columns.get(0)).text())
   const description = doc(columns.get(1)).text().trim()
   const accessLevel = doc(columns.get(2)).text().trim()
 
   //Gather up all the rows, these will be the different resource types.
   const allRows = []
-  for(let i = numberOfRows; i > 0; i--) {
+  for (let i = numberOfRows; i > 0; i--) {
     allRows.push(row)
     row = row.next()
   }
@@ -86,7 +98,7 @@ function parseSimpleMultiRowAction(doc: CheerioAPI, row: Cheerio<Element>, numbe
   let dependentActions: string[] = []
   const resourceTypes: ActionResourceType[] = []
 
-  for(let row of allRows) {
+  for (let row of allRows) {
     const resourceType = parseResourceTypeFromRow(doc, row)
     if (resourceType.name === undefined) {
       conditionKeys = resourceType.conditionKeys || []
@@ -107,21 +119,25 @@ function parseSimpleMultiRowAction(doc: CheerioAPI, row: Cheerio<Element>, numbe
   }
 }
 
-function parseScenarioMultiRowAction(doc: CheerioAPI, row: Cheerio<Element>, numberOfRows: number): Action {
+function parseScenarioMultiRowAction(
+  doc: CheerioAPI,
+  row: Cheerio<Element>,
+  numberOfRows: number
+): Action {
   const columns = row.find('td')
   const secondColumnRowspan = doc(columns.get(1)).attr('rowspan')!
   const initialRow = row
 
   const allRows: Cheerio<Element>[] = []
-  for(let i = numberOfRows; i > 0; i--) {
+  for (let i = numberOfRows; i > 0; i--) {
     allRows.push(row)
     row = row.next()
   }
 
   const theAction = parseSimpleMultiRowAction(doc, initialRow, parseInt(secondColumnRowspan))
 
-  const scenarioRows = allRows.filter(row => row.find('td').length === 5)
-  theAction.scenarios = scenarioRows.map(row => parseScenarioRow(doc, row))
+  const scenarioRows = allRows.filter((row) => row.find('td').length === 5)
+  theAction.scenarios = scenarioRows.map((row) => parseScenarioRow(doc, row))
 
   return theAction
 }
@@ -131,10 +147,12 @@ function parseScenarioRow(doc: CheerioAPI, row: Cheerio<Element>): Scenario {
   const nameCell = doc(columns.get(0)).text().trim()
   //Chop off "SCENARIO:"
   const name = nameCell.substring(10, nameCell.length).trim()
-  const resourceTypes = doc(columns.get(2)).find('a').
-                                            map((i, el) => doc(el).text().trim()).get().
-                                            map((s) => parseResourceTypeRef(s)).
-                                            filter((r) => r !== undefined) as ActionResourceType[]
+  const resourceTypes = doc(columns.get(2))
+    .find('a')
+    .map((i, el) => doc(el).text().trim())
+    .get()
+    .map((s) => parseResourceTypeRef(s))
+    .filter((r) => r !== undefined) as ActionResourceType[]
 
   const conditionKeys = doc(columns.get(3)).text().trim()
   if (conditionKeys !== '') {
@@ -151,7 +169,10 @@ function parseScenarioRow(doc: CheerioAPI, row: Cheerio<Element>): Scenario {
   }
 }
 
-function parseResourceTypeFromRow(doc: CheerioAPI, row: Cheerio<Element>): Partial<ActionResourceType> {
+function parseResourceTypeFromRow(
+  doc: CheerioAPI,
+  row: Cheerio<Element>
+): Partial<ActionResourceType> {
   const columns = row.find('td')
   const startAt = columns.length === 6 ? 3 : 0
 
@@ -160,8 +181,14 @@ function parseResourceTypeFromRow(doc: CheerioAPI, row: Cheerio<Element>): Parti
     throw new Error('Multiple resource types in a single row: ' + row.html())
   }
   const resourceTypeRef = parseResourceTypeRef(doc(columns.get(startAt)).text().trim())
-  const conditionKeys = doc(columns.get(startAt + 1)).find('a').map((i, el) => doc(el).text().trim()).get()
-  const dependentActions = doc(columns.get(startAt + 2)).find('p').map((i, el) => doc(el).text().trim()).get()
+  const conditionKeys = doc(columns.get(startAt + 1))
+    .find('a')
+    .map((i, el) => doc(el).text().trim())
+    .get()
+  const dependentActions = doc(columns.get(startAt + 2))
+    .find('p')
+    .map((i, el) => doc(el).text().trim())
+    .get()
 
   return {
     name: resourceTypeRef?.name,
@@ -180,8 +207,7 @@ function parseResourceTypeRef(cellContents: string): ResourceTypeReference | und
   let required = false
 
   if (name.endsWith('*')) {
-    name = name.substring(0, cellContents.length - 1),
-    required = true
+    ;((name = name.substring(0, cellContents.length - 1)), (required = true))
   }
 
   return {
@@ -212,7 +238,10 @@ function findActionRows(doc: CheerioAPI, table: Cheerio<Element>) {
  * @param table The actions table element
  * @returns Returns an array of errors found, or an empty array if no errors were found.
  */
-export function verifyActionTableAssumptions(doc:CheerioAPI, table: Cheerio<Element>): ProblemRow[] {
+export function verifyActionTableAssumptions(
+  doc: CheerioAPI,
+  table: Cheerio<Element>
+): ProblemRow[] {
   return [...verifyRowspanAssumptions(doc, table), ...verifyColspanAssumptions(doc, table)]
 }
 
@@ -221,14 +250,14 @@ export function verifyActionTableAssumptions(doc:CheerioAPI, table: Cheerio<Elem
  * @param doc The cheerio document
  * @param table The table
  */
-export function verifyColspanAssumptions(doc:CheerioAPI, table: Cheerio<Element>): ProblemRow[] {
+export function verifyColspanAssumptions(doc: CheerioAPI, table: Cheerio<Element>): ProblemRow[] {
   const rows = table.find('tr')
   const errorRows: ProblemRow[] = []
   rows.each((i, el) => {
     const row = doc(el)
     const hasColspans = row.find('td[colspan]').length > 0
-    if(hasColspans) {
-      errorRows.push({problemDescription: 'found colspan', html: row.html()!})
+    if (hasColspans) {
+      errorRows.push({ problemDescription: 'found colspan', html: row.html()! })
     }
   })
 
@@ -242,18 +271,18 @@ export function verifyRowspanAssumptions(doc: CheerioAPI, table: Cheerio<Element
     const row = doc(el)
     const hasRowspans = row.find('td[rowspan]').length > 0
     const hasSixColumns = row.find('td').length === 6
-    if(!hasRowspans) {
+    if (!hasRowspans) {
       return
     }
     const previousRow = row.prev()
     const previousRowHasRowspan = previousRow.find('td[rowspan]').length > 0
     if (previousRowHasRowspan) {
-      errorRows.push({problemDescription: 'previous row has rowspan', html: row.html()!})
+      errorRows.push({ problemDescription: 'previous row has rowspan', html: row.html()! })
       return
     }
 
     if (hasRowspans && !hasSixColumns) {
-      errorRows.push({problemDescription: 'does not have six columns', html: row.html()!})
+      errorRows.push({ problemDescription: 'does not have six columns', html: row.html()! })
       return
     }
     const columns = row.find('td')
@@ -262,18 +291,27 @@ export function verifyRowspanAssumptions(doc: CheerioAPI, table: Cheerio<Element
     const thirdColumnRowspan = doc(columns.get(2)).attr('rowspan')
 
     if (!firstColumnRowspan || !secondColumnRowspan || !thirdColumnRowspan) {
-      errorRows.push({problemDescription: 'missing rowspan in first three columns', html: row.html()!})
+      errorRows.push({
+        problemDescription: 'missing rowspan in first three columns',
+        html: row.html()!
+      })
       return
     }
 
     //is the first column rowspan less than the second column rowspan?
     if (parseInt(firstColumnRowspan) < parseInt(secondColumnRowspan)) {
-      errorRows.push({problemDescription: 'first column rowspan should be the biggest', html: row.html()!})
+      errorRows.push({
+        problemDescription: 'first column rowspan should be the biggest',
+        html: row.html()!
+      })
       return
     }
 
     if (parseInt(secondColumnRowspan) != parseInt(thirdColumnRowspan)) {
-      errorRows.push({problemDescription: 'second and third column rowspan should be equal', html: row.html()!})
+      errorRows.push({
+        problemDescription: 'second and third column rowspan should be equal',
+        html: row.html()!
+      })
       return
     }
 
@@ -282,7 +320,10 @@ export function verifyRowspanAssumptions(doc: CheerioAPI, table: Cheerio<Element
     const fifthColumnRowspan = doc(columns.get(4)).attr('rowspan')
     const sixthColumnRowspan = doc(columns.get(5)).attr('rowspan')
     if (fourthColumnRowspan || fifthColumnRowspan || sixthColumnRowspan) {
-      errorRows.push({problemDescription: 'found rowspan in last three columns', html: row.html()!})
+      errorRows.push({
+        problemDescription: 'found rowspan in last three columns',
+        html: row.html()!
+      })
       return
     }
   })

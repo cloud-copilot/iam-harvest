@@ -22,7 +22,7 @@ export interface ActionResourceType {
  * a few actions in all the documentation that have scenarios at all.
  */
 export interface Scenario {
-  name: string,
+  name: string
   resourceTypes: {
     name: string
     required: boolean
@@ -39,7 +39,7 @@ export interface Action {
   // TODO: Make these arrays optional to save a lot of space in the JSON, maybe not? I don't know.
   resourceTypes: ActionResourceType[]
   conditionKeys: string[]
-  dependentActions: string[],
+  dependentActions: string[]
   scenarios?: Scenario[]
   isPermissionOnly?: boolean
 }
@@ -57,7 +57,7 @@ export interface ConditionKey {
  * Represents all information about a service found on it's page
  */
 export interface ServiceDefinition {
-  name: string,
+  name: string
   prefix: string
   actions: Action[]
   resourceTypes?: ResourceType[]
