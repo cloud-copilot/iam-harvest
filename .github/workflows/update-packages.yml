@@ -1,8 +1,8 @@
 name: Update IAM Packages
-run-name: "Updating IAM Data Packages"
+run-name: 'Updating IAM Data Packages'
 on:
   schedule:
-    - cron: "37 4 * * *"
+    - cron: '37 4 * * *'
   workflow_dispatch:
 
 jobs:
@@ -38,7 +38,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
+          python-version: '3.x'
 
       - name: Install Dependencies
         run: |
