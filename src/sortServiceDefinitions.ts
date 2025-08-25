@@ -81,7 +81,9 @@ function getInformationByService(): [InfoByService, UnassociatedConditionKeys, C
         }
       }
 
-      if (conditionKey.key.includes('$') && !conditionKey.key.startsWith('aws:')) {
+      const hasDollarVar = conditionKey.key.includes('${')
+      const hasAngleVar = conditionKey.key.includes('<')
+      if ((hasDollarVar || hasAngleVar) && !conditionKey.key.startsWith('aws:')) {
         const parts = conditionKey.key.split('$')
         if (parts.length > 2) {
           throw new Error(`Unexpected format for key: ${conditionKey.key}`)
@@ -89,7 +91,7 @@ function getInformationByService(): [InfoByService, UnassociatedConditionKeys, C
         if (!conditionPatterns[conditionPrefix]) {
           conditionPatterns[conditionPrefix] = {}
         }
-        const pattern = conditionKey.key.replace(/\$\{.*\}/, '.+?')
+        const pattern = conditionKey.key.replace(/\$\{.*\}/, '.+?').replace(/<.*>/, '.+?')
         conditionPatterns[conditionPrefix][pattern] = conditionKey.key
       }
     }
