@@ -8,6 +8,8 @@ on:
 jobs:
   Update-IAM-Data-Packages:
     runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
     steps:
       - name: Checkout Updater Repo
         uses: actions/checkout@v4
@@ -42,6 +44,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
+          npm install -g npm@latest
           cd iam-harvest
           npm install
 
@@ -69,9 +72,6 @@ jobs:
           cp -r iam-harvest/files/serviceInfo/* iam-data-python/iamdata/data/
 
       - name: Publish NPM If Different
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           cd iam-data
           if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
@@ -101,7 +101,6 @@ jobs:
           git log
           git push
 
-          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
           npm publish --access public
 
       - name: Publish Go If Different
