@@ -101,8 +101,6 @@ jobs:
           git log
           git push
 
-          npm publish --access public
-
       - name: Publish Go If Different
         run: |
           cd iam-data-go
