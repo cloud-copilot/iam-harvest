@@ -1,7 +1,7 @@
-import { Cheerio, CheerioAPI } from 'cheerio'
+import type { Cheerio, CheerioAPI } from 'cheerio'
 import { Element } from 'domhandler'
-import { ResourceType } from '../util/serviceDefinition.js'
-import { ProblemRow } from './ProblemRow.js'
+import { type ResourceType } from '../util/serviceDefinition.js'
+import { type ProblemRow } from './ProblemRow.js'
 
 export function findResourceTypesTable(doc: CheerioAPI): Cheerio<Element> | undefined {
   const noResourceTypesMessage = doc('p:contains("does not support specifying a resource ARN")')
@@ -52,7 +52,6 @@ export function verifyResourceTypesTableAssumptions(
   const problemRows: ProblemRow[] = []
   const rows = table.find('tbody tr')
 
-  const errorRows: ProblemRow[] = []
   rows.each((i, el) => {
     const row = doc(el)
     if (row.find('td[rowspan]').length > 0) {

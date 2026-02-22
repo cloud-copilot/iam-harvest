@@ -1,7 +1,7 @@
-import { Cheerio, CheerioAPI } from 'cheerio'
+import type { Cheerio, CheerioAPI } from 'cheerio'
 import { Element } from 'domhandler'
-import { Action, ActionResourceType, Scenario } from '../util/serviceDefinition.js'
-import { ProblemRow } from './ProblemRow.js'
+import { type Action, type ActionResourceType, type Scenario } from '../util/serviceDefinition.js'
+import { type ProblemRow } from './ProblemRow.js'
 
 interface ResourceTypeReference {
   name: string

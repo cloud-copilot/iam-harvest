@@ -1,7 +1,7 @@
-import { Cheerio, CheerioAPI } from 'cheerio'
+import type { Cheerio, CheerioAPI } from 'cheerio'
 import { Element } from 'domhandler'
-import { ConditionKey } from '../util/serviceDefinition.js'
-import { ProblemRow } from './ProblemRow.js'
+import { type ConditionKey } from '../util/serviceDefinition.js'
+import { type ProblemRow } from './ProblemRow.js'
 
 export function findConditionKeysTable(doc: CheerioAPI): Cheerio<Element> | undefined {
   const noConditionTypesMessage = doc(
@@ -48,7 +48,6 @@ export function verifyConditionKeysTableAssumptions(
   const problemRows: ProblemRow[] = []
   const rows = table.find('tbody tr')
 
-  const errorRows: ProblemRow[] = []
   rows.each((i, el) => {
     const row = doc(el)
     if (row.find('td[rowspan]').length > 0) {
