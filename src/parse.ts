@@ -6,7 +6,7 @@ import { parseConditionKeys } from './parsing/conditionKeys.js'
 import { parseResourceTypes } from './parsing/resourceTypes.js'
 import { verifyHtmlFileAssumptions } from './parsing/verifyAssumptions.js'
 import { htmlDownloadLocation, jsonDocsLocation } from './util/consts.js'
-import { ServiceDefinition } from './util/serviceDefinition.js'
+import { type ServiceDefinition } from './util/serviceDefinition.js'
 
 async function parseFile(filename: string): Promise<ServiceDefinition> {
   const fileContents = await readFile(join(htmlDownloadLocation, filename), 'utf-8')

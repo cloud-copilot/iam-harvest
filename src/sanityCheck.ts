@@ -179,7 +179,7 @@ const tests: (() => boolean)[] = [
       'kms:CallerAccount'
     ]
     for (const condition of expectedConditions) {
-      const [service, conditionKey] = condition.split(':')
+      const [service] = condition.split(':')
       const conditions = JSON.parse(
         readFileSync(join(conditionKeysLocation, `${service}.json`), 'utf8')
       )
